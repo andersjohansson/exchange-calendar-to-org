@@ -1,7 +1,14 @@
 [Settings]
 email: your.email@example.com
-password: supersecretpassword
+username: MYDOMAIN\myusername # often needed for logging in correctly
+# python code to get password from auth source, example when using pass
+passwordeval: subprocess.check_output(["pass", "show", "myexchangeaccount"], text=True, encoding="UTF-8").strip()
+password: supersecretpassword #not needed if passwordeval is used
 sync_days: 60
-verify_ssl: True
 org_file: C:\org\Calendar.org
 timezone_string: Europe/London
+# For selecting calendars apart from the main calendar:
+calendar_names: Calendar1, Calendar2
+# Adding some lines to the org preamble, these will be prefixed with # in the output
+orgpreamble: +title: My Exchange calendars
+			 +category: Exchange cals

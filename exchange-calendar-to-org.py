@@ -1,7 +1,9 @@
-from exchangelib import DELEGATE, IMPERSONATION, Account, Credentials, \
-    EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, \
+from exchangelib import DELEGATE, Account, Credentials, \
+    EWSDate, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, \
     Mailbox, Attendee, Q
 from exchangelib.folders import Calendar
+
+import subprocess # useful for passwordeval
 
 import configparser
 import html2text
@@ -17,23 +19,46 @@ def main():
             os.path.dirname(os.path.realpath(__file__)),
             'exchange-calendar-to-org.cfg')
 
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
     config.read(config_file_path)
 
     email = config.get('Settings', 'email')
+    username = config.get('Settings', 'username')
+    try:
+        username = config.get('Settings', 'username')
+    except configparser.NoOptionError:
+        username = email
     try:
         server_url = config.get('Settings', 'server_url')
     except configparser.NoOptionError:
         server_url = None
-    password = config.get('Settings', 'password')
+
+    try:
+        passwordeval = config.get('Settings', 'passwordeval')
+    except configparser.NoOptionError:
+        passwordeval = None
+
+    if passwordeval:
+        password = eval(passwordeval)
+    else:
+        password = config.get('Settings', 'password')
+
     sync_days = int(config.get('Settings', 'sync_days'))
     org_file_path = config.get('Settings', 'org_file')
     tz_string = config.get('Settings', 'timezone_string')
-    sslverify = config.getboolean('Settings', 'verify_ssl')
+    try:
+        calendar_names = config.getlist("Settings","calendar_names")
+    except configparser.NoOptionError:
+        Calendar_names = None
+
+    try:
+        orgpreamble = config.get("Settings","orgpreamble")
+    except configparser.NoOptionError:
+        orgpreamble = None
 
     tz = EWSTimeZone.timezone(tz_string)
 
-    credentials = Credentials(username=email, password=password)
+    credentials = Credentials(username=username, password=password)
 
     if server_url is None:
         account = Account(
@@ -42,7 +67,7 @@ def main():
             autodiscover=True,
             access_type=DELEGATE)
     else:
-        server = Configuration(server=server_url, credentials=credentials, verify_ssl=sslverify)
+        server = Configuration(server=server_url, credentials=credentials)
         account = Account(
             primary_smtp_address=email,
             config=server,
@@ -52,16 +77,26 @@ def main():
     now = datetime.datetime.now()
     end = now + datetime.timedelta(days=sync_days)
 
-    items = account.calendar.filter(
-        start__lt=tz.localize(EWSDateTime(end.year, end.month, end.day)),
-        end__gt=tz.localize(EWSDateTime(now.year, now.month, now.day)), )
-
     text = []
-    text.append('* Calendar')
-    text.append('\n')
-    for item in items:
-        text.append(get_item_text(item, tz))
+    if orgpreamble:
+        text.append("".join(map(lambda x: "#"+ x, orgpreamble.splitlines(True)))+"\n\n")
+    text.append('* Exchange calendars\n')
+
+    calendars = [account.calendar]
+    if calendar_names:
+        calendars = calendars + list(map(lambda x: account.calendar / x, calendar_names))
+
+    for cal in calendars:
+        items = cal.filter(
+            start__lt=tz.localize(EWSDateTime(end.year, end.month, end.day)),
+            end__gt=tz.localize(EWSDateTime(now.year, now.month, now.day)), )
+
+
+        text.append('** ' + cal.name)
         text.append('\n')
+        for item in items:
+            text.append(get_item_text(item, tz))
+            text.append('\n')
 
     f = open(org_file_path, 'w')
     f.write(''.join(text))
@@ -69,18 +104,12 @@ def main():
 
 def get_item_text(item, tz):
     text = []
-    text.append('** ' + item.subject)
-    start_date = item.start.astimezone(tz)
-    start_date_text = get_org_date(start_date)
+    text.append('*** ' + item.subject)
+    start_date = item.start
+    start_date_text = get_org_date(start_date, tz)
 
-    # If the end date is at midnight, the event is an all day event
-    # so we subtract a minute so it doesn't cross the day boundary.
-    # This stops it appearing under both days.
-    end_date = item.end.astimezone(tz)
-    if (end_date.hour == 0 and end_date.minute == 0):
-        end_date = end_date - datetime.timedelta(minutes=1)
-
-    end_date_text = get_org_date(end_date)
+    end_date = item.end
+    end_date_text = get_org_date(end_date,tz)
     text.append('<' + start_date_text + '>--<' + end_date_text + '>')
     if item.location is not None:
         text.append('Location: ' + item.location)
@@ -97,14 +126,17 @@ def get_item_text(item, tz):
 
     if item.body is not None:
         text.append('')
-        text.append('*** Information')
+        text.append('**** Information')
         text.append(html2text.html2text(item.body).replace('\n\n', '\n'))
 
     return '\n'.join(text)
 
 
-def get_org_date(date):
-    return date.strftime('%Y-%m-%d %a %H:%M')
+def get_org_date(date, tz):
+    if type(date) is EWSDate:
+       return date.strftime('%Y-%m-%d %a')
+    else:
+        return date.astimezone(tz).strftime('%Y-%m-%d %a %H:%M')
 
 
 if __name__ == '__main__':
