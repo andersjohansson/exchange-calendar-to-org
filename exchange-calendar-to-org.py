@@ -7,12 +7,15 @@ import configparser
 import html2text
 import datetime
 import os
-
+import sys
 
 def main():
-    config_file_path = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        'exchange-calendar-to-org.cfg')
+    if len(sys.argv) > 1:
+        config_file_path = sys.argv[1]
+    else:
+        config_file_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'exchange-calendar-to-org.cfg')
 
     config = configparser.ConfigParser()
     config.read(config_file_path)
