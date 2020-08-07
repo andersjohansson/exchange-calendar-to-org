@@ -50,7 +50,7 @@ Next, install the requirements (ideally in a virtual environment):
 
 Finally, run the script:
 
-`python3 exchange-calendar-to-org.py`
+`python3 exchange-calendar-to-org.py [path-to-config-file.cfg]`
 
 This command can be scheduled to update the org mode file periodically.
 
