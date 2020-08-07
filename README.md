@@ -31,7 +31,16 @@ The possible options are:
 
 * `timezone_string`: The timezone in [this format](https://gist.github.com/pamelafox/986163).
 
-* `server_url`: Optional - The URL of the exchange server.
+* `calendar_names`: Optional - Extra calendars to download and add to the org file under separate headings. Comma separated list.
+
+* `orgpreamble`: Optional - For adding for example `#+title:` and `#+category` to the top of the org file. Can use multiple lines, each one will be prefixed with `#` (so you should write `+title: My title`)
+
+The following optional settings will speed up negotiation of the connection:x
+* `server_url`: Optional - The URL of the exchange server (to avoid autodiscover).
+
+* `auth_type`: Optional - Set to NTLM if ntlm is used.
+
+* `server_version`: Optional - Version of the server to connect to. List of four numbers.
 
 Next, install the requirements (ideally in a virtual environment):
 

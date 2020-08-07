@@ -1,14 +1,20 @@
 [Settings]
 email: your.email@example.com
 username: MYDOMAIN\myusername # often needed for logging in correctly
-# python code to get password from auth source, example when using pass
+# python code to get password from auth source, example when using pass (OPTIONAL)
 passwordeval: subprocess.check_output(["pass", "show", "myexchangeaccount"], text=True, encoding="UTF-8").strip()
 password: supersecretpassword #not needed if passwordeval is used
 sync_days: 60
 org_file: C:\org\Calendar.org
 timezone_string: Europe/London
-# For selecting calendars apart from the main calendar:
+# For selecting calendars apart from the main calendar (OPTIONAL):
 calendar_names: Calendar1, Calendar2
-# Adding some lines to the org preamble, these will be prefixed with # in the output
+# Adding some lines to the org preamble, these will be prefixed with # in the output (OPTIONAL)
 orgpreamble: +title: My Exchange calendars
 			 +category: Exchange cals
+# to avoid the time autodiscovery takes if server url is known. (OPTIONAL):
+server_url: exchange.example.com
+# NTLM if known that NTLM is the auth type. Speeds up connection negotiation. (OPTIONAL):
+auth_type: NTLM
+# Version of server if known. List of four numbers. Speeds up connection negotiation (OPTIONAL):
+server_version: 15, 1, 1913, 7
