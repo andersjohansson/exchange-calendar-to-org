@@ -22,39 +22,25 @@ def main():
     config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
     config.read(config_file_path)
 
-    email = config.get('Settings', 'email')
-    username = config.get('Settings', 'username')
-    try:
-        username = config.get('Settings', 'username')
-    except configparser.NoOptionError:
-        username = email
-    try:
-        server_url = config.get('Settings', 'server_url')
-    except configparser.NoOptionError:
-        server_url = None
+    settings = config['Settings']
 
-    try:
-        passwordeval = config.get('Settings', 'passwordeval')
-    except configparser.NoOptionError:
-        passwordeval = None
+    email = settings.get('email')
+    username = settings.get('username', email)
+
+    server_url = settings.get('server_url', None)
+    passwordeval = settings.get('passwordeval', None)
 
     if passwordeval:
         password = eval(passwordeval)
     else:
-        password = config.get('Settings', 'password')
+        password = settings.get('password')
 
-    sync_days = int(config.get('Settings', 'sync_days'))
-    org_file_path = config.get('Settings', 'org_file')
-    tz_string = config.get('Settings', 'timezone_string')
-    try:
-        calendar_names = config.getlist("Settings","calendar_names")
-    except configparser.NoOptionError:
-        Calendar_names = None
+    sync_days = int(settings.get('sync_days'))
+    org_file_path = settings.get('org_file')
+    tz_string = settings.get('timezone_string')
 
-    try:
-        orgpreamble = config.get("Settings","orgpreamble")
-    except configparser.NoOptionError:
-        orgpreamble = None
+    calendar_names = settings.getlist("calendar_names",None)
+    orgpreamble = settings.get("orgpreamble", None)
 
     tz = EWSTimeZone.timezone(tz_string)
 
