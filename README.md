@@ -35,7 +35,7 @@ The possible options are:
 
 * `orgpreamble`: Optional - For adding for example `#+title:` and `#+category` to the top of the org file. Can use multiple lines, each one will be prefixed with `#` (so you should write `+title: My title`)
 
-The following optional settings will speed up negotiation of the connection:x
+The following optional settings will speed up negotiation of the connection:
 * `server_url`: Optional - The URL of the exchange server (to avoid autodiscover).
 
 * `auth_type`: Optional - Set to NTLM if ntlm is used.
