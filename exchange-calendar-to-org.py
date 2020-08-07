@@ -70,7 +70,7 @@ def main():
 
     calendars = [account.calendar]
     if calendar_names:
-        calendars = calendars + list(map(lambda x: account.calendar / x, calendar_names))
+        calendars = calendars + list(map(lambda x: account.calendar // x, calendar_names))
 
     for cal in calendars:
         items = cal.filter(
