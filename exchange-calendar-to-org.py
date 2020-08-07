@@ -1,6 +1,6 @@
 from exchangelib import DELEGATE, Account, Credentials, \
     EWSDate, EWSDateTime, EWSTimeZone, Configuration, NTLM, CalendarItem, Message, \
-    Mailbox, Attendee, Q
+    Mailbox, Attendee, Q, Build, Version
 from exchangelib.folders import Calendar
 
 import subprocess # useful for passwordeval
@@ -28,6 +28,9 @@ def main():
     username = settings.get('username', email)
 
     server_url = settings.get('server_url', None)
+    auth_type = settings.get('auth_type', None)
+    version = settings.getlist('server_version', None)
+
     passwordeval = settings.get('passwordeval', None)
 
     if passwordeval:
@@ -53,7 +56,17 @@ def main():
             autodiscover=True,
             access_type=DELEGATE)
     else:
-        server = Configuration(server=server_url, credentials=credentials)
+        if version:
+            version = list(map(int,version))
+            version = Version(build=Build(*version))
+        if auth_type == "NTLM":
+            auth_type=NTLM
+
+        server = Configuration(
+            server=server_url,
+            credentials=credentials,
+            version=version,
+            auth_type=auth_type)
         account = Account(
             primary_smtp_address=email,
             config=server,
