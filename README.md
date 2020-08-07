@@ -42,6 +42,8 @@ The following optional settings will speed up negotiation of the connection:x
 
 * `server_version`: Optional - Version of the server to connect to. List of four numbers.
 
+(to find this information, you can uncomment the three lines starting with `# import logging` to output debug information.)
+
 Next, install the requirements (ideally in a virtual environment):
 
 `pip install -r requirements.txt`

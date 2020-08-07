@@ -11,6 +11,10 @@ import datetime
 import os
 import sys
 
+# import logging
+# from exchangelib.util import PrettyXmlHandler
+# logging.basicConfig(level=logging.DEBUG, handlers=[PrettyXmlHandler()])
+
 def main():
     if len(sys.argv) > 1:
         config_file_path = sys.argv[1]
