@@ -90,9 +90,9 @@ def main():
         calendars = calendars + list(map(lambda x: account.calendar // x, calendar_names))
 
     for cal in calendars:
-        items = cal.filter(
-            start__lt=tz.localize(EWSDateTime(end.year, end.month, end.day)),
-            end__gt=tz.localize(EWSDateTime(now.year, now.month, now.day)), )
+        items = cal.view(
+            start=tz.localize(EWSDateTime(now.year, now.month, now.day)),
+            end=tz.localize(EWSDateTime(end.year, end.month, end.day)), )
 
 
         text.append('** ' + cal.name)
