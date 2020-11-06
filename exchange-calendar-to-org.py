@@ -130,7 +130,7 @@ def get_item_text(item, tz):
     if item.body is not None:
         text.append('')
         text.append('**** Information')
-        text.append(html2text.html2text(item.body).replace('\n\n', '\n'))
+        text.append(html2text.html2text(item.body).replace('\n\n', '\n').replace('*',''))
 
     return '\n'.join(text)
 
