@@ -108,6 +108,9 @@ def main():
 def get_item_text(item, tz):
     text = []
     text.append('*** ' + item.subject)
+    if item.categories is not None:
+        text.append(':PROPERTIES:\n:CATEGORY: '+ item.categories[0] + '\n:END:')
+
     start_date = item.start
     start_date_text = get_org_date(start_date, tz)
 
