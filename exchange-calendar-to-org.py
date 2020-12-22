@@ -49,7 +49,7 @@ def main():
     calendar_names = settings.getlist("calendar_names",None)
     orgpreamble = settings.get("orgpreamble", None)
 
-    tz = EWSTimeZone.timezone(tz_string)
+    tz = EWSTimeZone(tz_string)
 
     credentials = Credentials(username=username, password=password)
 
@@ -77,7 +77,7 @@ def main():
             autodiscover=False,
             access_type=DELEGATE)
 
-    now = datetime.datetime.now()
+    now = EWSDateTime.now(tz);
     end = now + datetime.timedelta(days=sync_days)
 
     text = []
@@ -90,10 +90,7 @@ def main():
         calendars = calendars + list(map(lambda x: account.calendar // x, calendar_names))
 
     for cal in calendars:
-        items = cal.view(
-            start=tz.localize(EWSDateTime(now.year, now.month, now.day)),
-            end=tz.localize(EWSDateTime(end.year, end.month, end.day)), )
-
+        items = cal.view(start=now, end=end)
 
         text.append('** ' + cal.name)
         text.append('\n')
